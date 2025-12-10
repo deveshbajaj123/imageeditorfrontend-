@@ -13,7 +13,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ total: 0 });
   const { toasts, showToast, hideToast } = useToast();
 
-  // Fetch photos on mount
+  // Fetch photos on mount of album
   useEffect(() => {
     fetchPhotos();
   }, []);
