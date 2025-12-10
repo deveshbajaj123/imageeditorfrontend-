@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import Navbar from '../components/shared/Navbar';
 import AlbumCard from '../components/albums/AlbumCard';
@@ -31,7 +32,7 @@ export default function Albums() {
             const albumDetail = await albumAPI.getAlbum(album.id);
             return {
               ...album,
-              photos: albumDetail.data.album.photos.slice(0, 4) // Get first 4 photos
+              photos: albumDetail.data.album.photos.slice(0, 4) // Get first four photos
             };
           } catch (error) {
             console.error(`Error fetching photos for album ${album.id}:`, error);
