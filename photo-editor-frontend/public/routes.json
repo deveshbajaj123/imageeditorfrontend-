@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {
+      "route": "/shared/*",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/*",
+      "rewrite": "/index.html"
+    }
+  ]
+}
