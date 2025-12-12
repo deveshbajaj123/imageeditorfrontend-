@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check if user is logged in on mount
+  // Auto-login if token and user exists
   useEffect(() => {
     const initAuth = async () => {
       const token = storage.getToken();
@@ -18,66 +18,70 @@ export const AuthProvider = ({ children }) => {
       if (token && savedUser) {
         setUser(savedUser);
         setIsAuthenticated(true);
-        
-        // Verify token is still valid
+
         try {
           const response = await authAPI.getCurrentUser();
           setUser(response.data.user);
           storage.setUser(response.data.user);
-        } catch (error) {
-          // Token invalid, clear storage
+        } catch (err) {
           logout();
         }
       }
-      
+
       setLoading(false);
     };
 
     initAuth();
   }, []);
 
+  // Email/password login
   const login = async (email, password) => {
     try {
       const response = await authAPI.login({ email, password });
       const { token, user } = response.data;
-      
+
       storage.setToken(token);
       storage.setUser(user);
+
       setUser(user);
       setIsAuthenticated(true);
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.error || 'Login failed' 
+      return {
+        success: false,
+        error: error.response?.data?.error || "Login failed",
       };
     }
   };
 
+  // Registration
   const register = async (email, password, name) => {
     try {
       const response = await authAPI.register({ email, password, name });
       const { token, user } = response.data;
-      
+
       storage.setToken(token);
       storage.setUser(user);
+
       setUser(user);
       setIsAuthenticated(true);
-      
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.error || 'Registration failed' 
+      return {
+        success: false,
+        error: error.response?.data?.error || "Registration failed",
       };
     }
   };
 
+  // Google OAuth
   const loginWithGoogle = () => {
     authAPI.googleLogin();
   };
 
+  // Logout
   const logout = () => {
     storage.clear();
     setUser(null);
@@ -94,14 +98,17 @@ export const AuthProvider = ({ children }) => {
     logout,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-// Custom hook to use auth context
+// Custom hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
+  if (!context)
+    throw new Error("useAuth must be used within AuthProvider");
   return context;
 };

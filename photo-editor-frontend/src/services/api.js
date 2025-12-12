@@ -1,84 +1,87 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://image-api-fschcebmh0habtd6.centralindia-01.azurewebsites.net/api";
 
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // ← ADD THIS LINE
+  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Add token to requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    const token = localStorage.getItem("token");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Handle response errors
+// Global response handler
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
 );
 
-// Auth APIs
+// Auth API
 export const authAPI = {
-  register: (data) => api.post('/auth/register', data),
-  login: (data) => api.post('/auth/login', data),
-  getCurrentUser: () => api.get('/auth/me'),
+  register: (data) => api.post("/auth/register", data),
+  login: (data) => api.post("/auth/login", data),
+  getCurrentUser: () => api.get("/auth/me"),
+
+  // Google OAuth
   googleLogin: () => {
-    window.location.href = `${API_BASE_URL.replace('/api', '')}/api/auth/google`;
+    window.location.href =
+      "https://image-api-fschcebmh0habtd6.centralindia-01.azurewebsites.net/api/auth/google";
   },
 };
 
-// Photo APIs
+// Photo API
 export const photoAPI = {
-  upload: (formData) => api.post('/photos/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
-  getPhotos: (params) => api.get('/photos', { params }),
+  upload: (formData) =>
+    api.post("/photos/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  getPhotos: (params) => api.get("/photos", { params }),
   getPhoto: (id) => api.get(`/photos/${id}`),
   deletePhoto: (id) => api.delete(`/photos/${id}`),
-  searchPhotos: (query) => api.get('/photos/search', { params: { q: query } }),
+  searchPhotos: (query) => api.get("/photos/search", { params: { q: query } }),
 };
 
-// Album APIs
+// Album API
 export const albumAPI = {
-  create: (data) => api.post('/albums', data),
-  getAlbums: () => api.get('/albums'),
+  create: (data) => api.post("/albums", data),
+  getAlbums: () => api.get("/albums"),
   getAlbum: (id) => api.get(`/albums/${id}`),
   update: (id, data) => api.put(`/albums/${id}`, data),
   delete: (id) => api.delete(`/albums/${id}`),
-  addPhoto: (albumId, photoId) => api.post(`/albums/${albumId}/photos`, { photoId }),
-  removePhoto: (albumId, photoId) => api.delete(`/albums/${albumId}/photos/${photoId}`),
+  addPhoto: (albumId, photoId) =>
+    api.post(`/albums/${albumId}/photos`, { photoId }),
+  removePhoto: (albumId, photoId) =>
+    api.delete(`/albums/${albumId}/photos/${photoId}`),
 };
 
-// Image editing APIs
+// Image Editing API
 export const imageAPI = {
   saveEdited: (photoId, edits) => api.post(`/images/${photoId}/edit`, { edits }),
 };
 
-// Share APIs
+// Sharing API
 export const shareAPI = {
-  createShare: (albumId, expiresInDays) => 
+  createShare: (albumId, expiresInDays) =>
     api.post(`/shares/albums/${albumId}`, { expiresInDays }),
   getSharedAlbum: (token) => api.get(`/shares/${token}`),
   getAlbumShares: (albumId) => api.get(`/shares/albums/${albumId}/shares`),
