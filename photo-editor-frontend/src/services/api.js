@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
   "https://image-api-fschcebmh0habtd6.centralindia-01.azurewebsites.net/api";
+
+const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  "https://image-api-fschcebmh0habtd6.centralindia-01.azurewebsites.net";
 
 // Create axios instance
 const api = axios.create({
@@ -41,11 +43,10 @@ export const authAPI = {
   register: (data) => api.post("/auth/register", data),
   login: (data) => api.post("/auth/login", data),
   getCurrentUser: () => api.get("/auth/me"),
-
-  // Google OAuth
+  
+  // Google OAuth - Use environment variable
   googleLogin: () => {
-    window.location.href =
-      "https://image-api-fschcebmh0habtd6.centralindia-01.azurewebsites.net/api/auth/google";
+    window.location.href = `${BACKEND_BASE_URL}/api/auth/google`;
   },
 };
 
